@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; // DB component
+use App\Traits\ApiResponser;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
+    use ApiResponser;
     private $request;
 
     public function __construct(Request $request)
@@ -14,31 +18,47 @@ class UserController extends Controller
         $this->request = $request;
     }
 
+    public function index()
+    {
+        // $users = User::all(); // Eloquent style
+        $users = User::all(); // Eloquent style
+
+        return response()->json($users, 200);
+    }
+
 
     public function getUsers()
     {
-        $users = User::all();
-        return response()->json($users, 200);
+        $users = DB::connection('mysql')
+            ->select("Select * from users2");  // use traditional SQL
+
+        return $this->successResponse($users);
     }
+
 
     public function add(Request $request)
     {
         $rule = [
-            'username' => 'required | string | unique:users,username|max:20',
-            'password' => 'required | string | min:6 | max:20',
+            // 'username' => 'required | string | unique:users2,username|max:20', // old
+            'username' => 'required | max:20',
+            'password' => 'required | max:20',
+            'gender' => 'required | in:Male,Female', // new
         ];
 
         $this->validate($request, $rule);
 
         $user = User::create($request->all());
-        return response()->json($user, 201);
+        return $this->successResponse($user, Response::HTTP_CREATED);
     }
+
+
+
 
     // or like this 
     public function add_2ndVersion(Request $request)
     {
         $rule = [
-            'username' => 'required | string | unique:users,username|max:20',
+            'username' => 'required | string | unique:users2,username|max:20',
             'password' => 'required | string | min:6 | max:20',
         ];
 
@@ -55,54 +75,83 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = User::where('id', $id)->first();
+        $user = User::findOrFail($id);
+        return $this->successResponse($user);
 
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
+        // Old
+        // $user = User::where('id', $id)->first();
 
-        return response()->json($user, 200);
+        // if (!$user) {
+        //     return response()->json([
+        //         'message' => 'User not found'
+        //     ], 404);
+        // }
+
+        // return response()->json($user, 200);
     }
 
 
     public function delete($id)
     {
-        $user = User::where('id', $id)->first();
+        $user = User::findOrFail($id);
+        $user->delete();
+        return $this->errorResponse('User ID Does Not Exists', Response::HTTP_NOT_FOUND);
 
-        if ($user) {
-            $user->delete();
-            return response()->json([
-                'message' => 'User deleted successfully'
-            ], 200);
-        }
+        // Old code
+        // $user = User::where('id', $id)->first();
 
-        return response()->json([
-            'message' => 'User not found'
-        ], 404);
+        // if ($user) {
+        //     $user->delete();
+        //     return response()->json([
+        //         'message' => 'User deleted successfully'
+        //     ], 200);
+        // }
+
+        // return response()->json([
+        //     'message' => 'User not found'
+        // ], 404);
     }
 
 
     public function update($id, Request $request)
     {
-        $user = User::where('id', $id)->first();
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
-
-        $rule = [
-            'username' => 'string | unique:users,username,' . $id . '|max:20',
-            'password' => 'string | min:6 | max:20',
+        $rules = [
+            'username' => 'max:20',
+            'password' => 'max:20',
+            'gender' => 'in:Male,Female',
         ];
 
-        $this->validate($request, $rule);
+        $this->validate($request, $rules);
+        $user = User::findOrFail($id);
 
-        $user->update($request->all());
-        return response()->json($user, 200);
+        $user->fill($request->all());
+
+        if ($user->isClean()) {
+            return $this->errorResponse('At least one value must change', Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $user->save();
+        return $this->successResponse($user);
+
+
+        // Old!
+        // $user = User::where('id', $id)->first();
+
+        // if (!$user) {
+        //     return response()->json([
+        //         'message' => 'User not found'
+        //     ], 404);
+        // }
+
+        // $rule = [
+        //     'username' => 'string | unique:users,username,' . $id . '|max:20',
+        //     'password' => 'string | min:6 | max:20',
+        // ];
+
+        // $this->validate($request, $rule);
+
+        // $user->update($request->all());
+        // return response()->json($user, 200);
     }
     
 
@@ -122,10 +171,6 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
-    }
 
     /**
      * Show the form for creating a new resource.
