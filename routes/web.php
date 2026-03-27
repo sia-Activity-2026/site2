@@ -22,3 +22,11 @@ $router->post('/users', 'UserController@add');
 $router->get('/users/{id}', 'UserController@show');
 $router->delete('/users/{id}', 'UserController@delete');
 $router->put('/users/{id}', 'UserController@update');
+
+// Order routes
+$router->get('/orders', 'OrderController@index');
+$router->post('/orders', 'OrderController@add');
+$router->get('/orders/{id}', 'OrderController@show');
+$router->put('/orders/{id}', 'OrderController@update');
+$router->delete('/orders/{id}', 'OrderController@delete');
+$router->get('/users/{userId}/orders', 'OrderController@getUserOrders');
