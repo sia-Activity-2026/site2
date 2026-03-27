@@ -21,4 +21,9 @@ class User extends Model
     // protected $primaryKey = userid;
 
     public $timestamps = false;
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'id');
+    }
 }
