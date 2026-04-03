@@ -23,6 +23,13 @@ $router->get('/users/{id}', 'UserController@show');
 $router->delete('/users/{id}', 'UserController@delete');
 $router->put('/users/{id}', 'UserController@update');
 
+// Product routes
+$router->get('/products', 'ProductController@index');
+$router->post('/products', 'ProductController@store');
+$router->get('/products/{id}', 'ProductController@show');
+$router->put('/products/{id}', 'ProductController@update');
+$router->delete('/products/{id}', 'ProductController@destroy');
+
 // Order routes
 $router->get('/orders', 'OrderController@index');
 $router->post('/orders', 'OrderController@add');
