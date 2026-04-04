@@ -39,14 +39,13 @@ $router->delete('/orders/{id}', 'OrderController@delete');
 $router->get('/users/{userId}/orders', 'OrderController@getUserOrders');
 
 // Protected routes
-// $router->group(['middleware' => 'auth:api'], function () use ($router) {
-//     $router->get('products', 'ProductController@index');
-//     $router->get('products/{id}', 'ProductController@show');
-//     $router->post('products', 'ProductController@store');
-//     $router->put('products/{id}', 'ProductController@update');
-//     $router->delete('products/{id}', 'ProductController@destroy');
-// });
-
+$router->group(['middleware' => 'auth:api'], function () use ($router) {
+    $router->get('products', 'ProductController@index');
+    $router->get('products/{id}', 'ProductController@show');
+    $router->post('products', 'ProductController@store');
+    $router->put('products/{id}', 'ProductController@update');
+    $router->delete('products/{id}', 'ProductController@destroy');
+});
 
 $router->group(['middleware' => 'auth:api'], function () use ($router) {
     // Forward to ddsbe2 products
