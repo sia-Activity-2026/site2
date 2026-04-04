@@ -11,7 +11,9 @@ class User extends Model
     protected $fillable = [
         'username',
         'password',
-        'gender'
+        'gender',
+        'created_at',
+        'updated_at'
     ];
 
     protected $hidden = [
@@ -20,7 +22,7 @@ class User extends Model
 
     // protected $primaryKey = userid;
 
-    public $timestamps = false;
+    // public $timestamps = false;
 
     public function orders()
     {
