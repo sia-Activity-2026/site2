@@ -37,3 +37,9 @@ $router->get('/orders/{id}', 'OrderController@show');
 $router->put('/orders/{id}', 'OrderController@update');
 $router->delete('/orders/{id}', 'OrderController@delete');
 $router->get('/users/{userId}/orders', 'OrderController@getUserOrders');
+
+
+<?php
+Route::middleware('auth:api')->group(function () {
+    Route::apiResource('products', ProductController::class);
+});
